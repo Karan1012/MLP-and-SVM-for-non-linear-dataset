@@ -1,0 +1,116 @@
+\documentclass[10pt]{article}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{ulem}
+\usepackage{framed}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{subfigure}
+\usepackage{hyperref}
+\usepackage{tabularx}
+\usepackage[capitalise,noabbrev]{cleveref}
+\usepackage[usenames,dvipsnames]{xcolor}
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage[letterpaper, margin=1in]{geometry}
+\sloppy
+
+
+\renewcommand{\familydefault}{ppl}
+
+\newcommand{\bx}{{\boldsymbol x}}
+\newcommand{\bh}{{\boldsymbol h}}
+\newcommand{\bw}{{\boldsymbol w}}
+\newcommand{\bW}{{\mathbf W}}
+\newcommand{\bK}{\mathbf{K}}
+\newcommand{\alphavec}{{\boldsymbol \alpha}}
+\newcommand{\bmu}{{\boldsymbol \mu}}
+\newcommand{\balpha}{{\boldsymbol \alpha}}
+\newcommand{\bbeta}{{\boldsymbol \beta}}
+\newcommand{\btheta}{{\boldsymbol \theta}}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\AND}{AND}
+\DeclareMathOperator*{\OR}{OR}
+\DeclareMathOperator*{\XOR}{XOR}
+\DeclareMathOperator*{\sign}{sign}
+
+
+\newcommand{\solution}[1]{{\color{PineGreen} \textbf{Solution:} #1}}
+
+\newcommand{\todo}[1]{\textbf{\textcolor{MidnightBlue}{to do: #1}} }
+
+\begin{document}
+
+\section*{Machine Learning Homework 3 Solutions}
+
+\section*{Written Problems}
+
+\begin{enumerate}
+
+\item Machine learning methods can be viewed as function estimators. Consider the logical functions AND, OR, and XOR. Using a signed representation for Boolean variables, where input and output variables are in $\{+1, -1\}$, these functions are defined as
+\begin{align}
+\AND(x_1, x_2) &= \begin{cases}
++1 & \textrm{if}~ x_1 = +1 \wedge x_2 = +1\\
+-1 & \textrm{otherwise}
+\end{cases}\\
+\OR(x_1, x_2) &= \begin{cases}
++1 & \textrm{if}~ x_1 = +1\\
++1 & \textrm{if}~ x_2 = +1\\
+-1 & \textrm{otherwise}
+\end{cases}\\
+\XOR(x_1, x_2) &= \begin{cases}
++1 & \textrm{if}~ x_1 = +1 \wedge x_2 = -1\\
++1 & \textrm{if}~ x_2 = +1 \wedge x_1 = -1\\
+-1 & \textrm{otherwise}
+\end{cases}
+\end{align}
+
+\begin{enumerate}
+
+\item (6 points) Which of these three logical functions can be expressed as a linear classifier of the form
+\begin{align}
+f(\bx; \bw) = \sign(w_1 x_1 + w_2 x_2 + b),
+\end{align}
+and show weights $w_1$, $w_2$, and bias values $b$ that mimic these logical functions. Which of these functions cannot be expressed as a linear classifier, and why not?
+
+\solution{
+One strategy for determining whether these functions are linearly classifiable is to draw them. Each function has four possible input points at $(1,1), (1, -1), (-1, 1), (-1, -1)$ with different target classes. From plots, one can imagine whether a line can separate the $+1$ outputs from the $-1$ outputs.
+
+The $\AND$ function can be mimicked with the weights $w_1 = w_2 = 1$ and bias $b = -1$ (or any $b \in (-2, 0)$). With these weights, only when both $x_1$ and $x_2$ are 1 does the weight score cancel out the negative bias.
+
+The $\OR$ function can be mimicked with the weights $w_1 = w_2 = 1$ and the bias $b = 1$ (or any $b \in (0, 2)$). If either of the inputs is 1, then their sum is at least 0. Only when both inputs are $-1$ will their sum be less than $1$.
+
+The $\XOR$ function cannot be mimicked with a linear classifier. The output of $\XOR$ is positive in the upper left and bottom right quadrants and negative elsewhere, so no single line can isolate the positive cases.
+}
+
+\item (6 points) For any logical functions that cannot be expressed as a linear classifier, show how and with what weights it can be expressed as a two-layered perceptron of the form
+\begin{align}
+f(\bx; \bw) &= \sign(\bw^{\mathrm{out}\top} \bh + b^{\mathrm{out}})\\
+\bh &= [h_1, h_2]^\top\\
+h_1 &= \sign(\bw^{(1)\top} \bx + b^{(1)})\\
+h_2 &= \sign(\bw^{(2)\top} \bx + b^{(2)})
+\end{align}
+For this problem, you must specify three weight vectors $(\bw^{\mathrm{out}}, \bw^{(1)}, \bw^{(2)})$ and three biases $(b^{\mathrm{out}}, b^{(1)}, b^{(2)})$.
+
+\solution{
+The $\XOR$ function is positive when the number of positive inputs is exactly 1 and the number of negative inputs is exactly 1. Conversely, $\XOR$ is negative when either the number of positive inputs is $2$ and when the number of negative inputs is $2$. We can check for these conditions in the first layer and use the second layer to check that both conditions are false:
+\begin{align}
+w^{(1)}_1 &= w^{(1)}_2 = 1, ~~ b^{(1)} = 1\\
+w^{(2)}_1 &= w^{(2)}_2 = -1, ~~ b^{(2)} = 1\\
+w^{\mathrm{out}}_1 &= w^{\mathrm{out}}_2 = -1, ~~ b^{\mathrm{out}} = 1
+\end{align}
+With these parameters, $h_1$ is equivalent to $\AND(x_1, x_2)$ and $h_2$ is equivalent to $\AND(\neg x_1, \neg x_2)$. The final output checks that neither of these cases is true, which means there is exactly one +1 input and one -1 input, just as in the $\XOR$ function.
+}
+
+
+\end{enumerate}
+
+\end{enumerate}
+
+\end{document}
+
+
